@@ -1,0 +1,44 @@
+name: Website Monitor
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"   # Every 5 minutes
+  workflow_dispatch:          # Allow manual trigger from GitHub UI
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # Restore previous state.json so we can detect status changes
+      - name: Restore state cache
+        uses: actions/cache@v4
+        with:
+          path: state.json
+          key: site-monitor-state
+          restore-keys: site-monitor-state
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run monitor
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python monitor.py
+
+      # Save updated state.json for next run
+      - name: Save state cache
+        uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: state.json
+          key: site-monitor-state-${{ github.run_id }}
