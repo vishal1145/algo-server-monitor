@@ -13,14 +13,6 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      # Restore previous state.json so we can detect status changes
-      - name: Restore state cache
-        uses: actions/cache@v4
-        with:
-          path: state.json
-          key: site-monitor-state
-          restore-keys: site-monitor-state
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -29,16 +21,26 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      # Download previous state.json from artifacts
+      - name: Download previous state
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          name: site-state
+          path: .
+        continue-on-error: true
+
       - name: Run monitor
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_CHAT_IDS: ${{ secrets.TELEGRAM_CHAT_IDS }}
         run: python monitor.py
 
-      # Save updated state.json for next run
-      - name: Save state cache
-        uses: actions/cache/save@v4
+      # Upload updated state.json for next run
+      - name: Upload state
+        uses: actions/upload-artifact@v4
         if: always()
         with:
+          name: site-state
           path: state.json
-          key: site-monitor-state-${{ github.run_id }}
+          overwrite: true
+          retention-days: 7

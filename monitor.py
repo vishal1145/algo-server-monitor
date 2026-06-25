@@ -134,6 +134,15 @@ def main():
         }
 
     save_state(state)
+
+    # Send summary if all sites are UP (so you know the monitor is working)
+    all_up = all(state[u]["status"] == "UP" for u in WEBSITES)
+    if all_up:
+        summary = "\n".join(
+            f"✅ {u}  ({state[u]['response_time']}s)" for u in WEBSITES
+        )
+        send_telegram(f"🟢 <b>All Sites OK</b>\n{summary}\n🕐 {now}")
+
     print("\nDone. State saved.")
 
 
