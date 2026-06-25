@@ -11,7 +11,11 @@ import requests
 
 # ─── CONFIG ───────────────────────────────────────
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
-TELEGRAM_CHAT_ID   = os.environ.get("TELEGRAM_CHAT_ID", "")
+
+# Multiple chat IDs supported — comma separated in env var
+# e.g. TELEGRAM_CHAT_IDS = "7594589413,987654321"
+_ids_env = os.environ.get("TELEGRAM_CHAT_IDS", os.environ.get("TELEGRAM_CHAT_ID", ""))
+TELEGRAM_CHAT_IDS = [cid.strip() for cid in _ids_env.split(",") if cid.strip()]
 
 WEBSITES = [
     "https://algofolks.com/",
@@ -40,19 +44,20 @@ def send_telegram(message: str):
     if not TELEGRAM_BOT_TOKEN:
         print("[TELEGRAM] Token not set.")
         return
-    try:
-        url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-        resp = requests.post(url, json={
-            "chat_id": TELEGRAM_CHAT_ID,
-            "text": message,
-            "parse_mode": "HTML",
-        }, timeout=10)
-        if resp.ok:
-            print(f"[TELEGRAM] Sent: {message[:60]}...")
-        else:
-            print(f"[TELEGRAM ERROR] {resp.status_code} - {resp.json().get('description')}")
-    except Exception as e:
-        print(f"[TELEGRAM ERROR] {e}")
+    for chat_id in TELEGRAM_CHAT_IDS:
+        try:
+            url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+            resp = requests.post(url, json={
+                "chat_id": chat_id,
+                "text": message,
+                "parse_mode": "HTML",
+            }, timeout=10)
+            if resp.ok:
+                print(f"[TELEGRAM] Sent to {chat_id}: {message[:60]}...")
+            else:
+                print(f"[TELEGRAM ERROR] {chat_id} → {resp.status_code} - {resp.json().get('description')}")
+        except Exception as e:
+            print(f"[TELEGRAM ERROR] {chat_id} → {e}")
 
 
 def check_site(url: str) -> dict:
