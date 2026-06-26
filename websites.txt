@@ -5,3 +5,4 @@ https://algofolks.com/
 https://sams.algofolks.com/
 https://sams-uat.algofolks.com/
 https://banter-api.algofolks.com/
+https://nexavault.algofolks.com/
