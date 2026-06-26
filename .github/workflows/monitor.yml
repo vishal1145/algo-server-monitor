@@ -2,7 +2,7 @@ name: Website Monitor
 
 on:
   schedule:
-    - cron: "*/5 * * * *"   # Every 5 minutes
+    - cron: "0 * * * *"   # Every 1 hour
   workflow_dispatch:          # Allow manual trigger from GitHub UI
 
 jobs:
