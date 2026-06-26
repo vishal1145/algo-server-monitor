@@ -1,0 +1,7 @@
+# Add one website URL per line.
+# Lines starting with # are comments and will be ignored.
+
+https://algofolks.com/
+https://sams.algofolks.com/
+https://sams-uat.algofolks.com/
+https://banter-api.algofolks.com/

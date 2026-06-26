@@ -17,10 +17,13 @@ TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 _ids_env = os.environ.get("TELEGRAM_CHAT_IDS", os.environ.get("TELEGRAM_CHAT_ID", ""))
 TELEGRAM_CHAT_IDS = [cid.strip() for cid in _ids_env.split(",") if cid.strip()]
 
-WEBSITES = [
-    "https://algofolks.com/",
-    "https://igas-energy.de/",
-]
+def load_websites(path: str = "websites.txt") -> list:
+    if not os.path.exists(path):
+        return []
+    with open(path) as f:
+        return [line.strip() for line in f if line.strip() and not line.startswith("#")]
+
+WEBSITES = load_websites()
 
 REQUEST_TIMEOUT        = 10
 SLOW_THRESHOLD_SECONDS = 3.0
